@@ -77,7 +77,13 @@
     itemData: {
       type: Object as PropType<TagProps>,
       default() {
-        return [];
+        return {
+          title: '',
+          name: '',
+          fullPath: '',
+          query: {},
+          ignoreCache: false,
+        } as TagProps;
       },
     },
     index: {
