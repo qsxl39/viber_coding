@@ -11,18 +11,6 @@ const PROFILE: AppRouteRecordRaw = {
     icon: 'icon-file',
     order: 4,
   },
-  children: [
-    {
-      path: 'basic',
-      name: 'Basic',
-      component: () => import('@/views/profile/basic/index.vue'),
-      meta: {
-        locale: 'menu.profile.basic',
-        requiresAuth: true,
-        roles: ['admin'],
-      },
-    },
-  ],
 };
 
 export default PROFILE;

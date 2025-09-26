@@ -1,9 +1,8 @@
 import type { RouteRecordNormalized } from 'vue-router';
 
-const modules = import.meta.glob('./modules/*.ts', { eager: true });
-const externalModules = import.meta.glob('./externalModules/*.ts', {
-  eager: true,
-});
+// 精简后默认不再自动引入业务模块路由
+const modules = {} as Record<string, any>;
+const externalModules = {} as Record<string, any>;
 
 function formatModules(_modules: any, result: RouteRecordNormalized[]) {
   Object.keys(_modules).forEach((key) => {
