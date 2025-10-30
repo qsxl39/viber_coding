@@ -121,6 +121,9 @@
     z-index: 100;
     width: 100%;
     height: @nav-size-height;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .layout-sider {
@@ -129,6 +132,8 @@
     left: 0;
     z-index: 99;
     height: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     &::after {
       position: absolute;
@@ -137,7 +142,7 @@
       display: block;
       width: 1px;
       height: 100%;
-      background-color: var(--color-border);
+      background: rgba(255, 255, 255, 0.2);
       content: '';
     }
 
@@ -172,7 +177,9 @@
   .layout-content {
     min-height: 100vh;
     overflow-y: hidden;
-    background-color: var(--color-fill-2);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 0;
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
   }
 </style>
