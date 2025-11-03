@@ -47,7 +47,7 @@
       </li>
       <li>
         <a-button type="primary" @click="$router.push({ name: 'submit' })"
-          >提交灵感</a-button
+          >上传模板</a-button
         >
       </li>
       <li>

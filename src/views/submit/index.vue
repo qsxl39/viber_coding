@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 40px; max-width: 900px; margin: 0 auto">
-    <a-typography-title :heading="3">提交灵感</a-typography-title>
+    <a-typography-title :heading="3">上传模板</a-typography-title>
     <a-form layout="vertical">
       <a-form-item field="title" label="标题">
         <a-input placeholder="请输入标题" />

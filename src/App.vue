@@ -1,9 +1,10 @@
 <template>
   <a-config-provider>
+    <SiteTopbar />
     <router-view />
   </a-config-provider>
 </template>
 
 <script lang="ts" setup>
-  // 精简应用骨架，仅保留路由视图
+  import SiteTopbar from '@/components/site-topbar.vue';
 </script>
