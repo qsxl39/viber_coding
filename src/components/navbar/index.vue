@@ -10,8 +10,14 @@
           :style="{ margin: 0, fontSize: '18px' }"
           :heading="5"
         >
-          Arco Pro
+          Vibe Coding
         </a-typography-title>
+        <a-link :hoverable="false" @click="$router.push({ name: 'explore' })"
+          >探索</a-link
+        >
+        <a-link :hoverable="false" @click="$router.push({ name: 'catalog' })"
+          >目录</a-link
+        >
         <icon-menu-fold
           v-if="!topMenu && appStore.device === 'mobile'"
           style="font-size: 22px; cursor: pointer"
@@ -20,9 +26,30 @@
       </a-space>
     </div>
     <div class="center-side">
-      <Menu v-if="topMenu" />
+      <a-input-search
+        v-model="keyword"
+        :style="{ width: '720px', maxWidth: '65vw' }"
+        allow-clear
+        placeholder="按灵感搜索"
+        @search="onSearch"
+      />
     </div>
     <ul class="right-side">
+      <li>
+        <a-button type="text" @click="$router.push({ name: 'login' })"
+          >登录</a-button
+        >
+      </li>
+      <li>
+        <a-button type="text" @click="$router.push({ name: 'register' })"
+          >注册</a-button
+        >
+      </li>
+      <li>
+        <a-button type="primary" @click="$router.push({ name: 'submit' })"
+          >提交灵感</a-button
+        >
+      </li>
       <li>
         <a-tooltip :content="$t('settings.search')">
           <a-button class="nav-btn" type="outline" :shape="'circle'">
@@ -194,6 +221,7 @@
 
 <script lang="ts" setup>
   import { computed, ref, inject } from 'vue';
+  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
@@ -260,6 +288,13 @@
     Message.success(res as string);
   };
   const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
+
+  const router = useRouter();
+  const keyword = ref('');
+  const onSearch = () => {
+    const q = (keyword.value || '').trim();
+    router.push({ name: 'search', query: { q } });
+  };
 </script>
 
 <style scoped lang="less">
@@ -279,6 +314,9 @@
 
   .center-side {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .right-side {

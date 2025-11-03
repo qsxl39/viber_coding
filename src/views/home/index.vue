@@ -2,11 +2,29 @@
   <div class="home page">
     <!-- 顶部简易导航，右上角"登录" -->
     <div class="topbar">
-      <div class="logo">Vibe Coding</div>
-      <div class="actions">
-        <router-link to="/login">
-          <a-button type="primary" size="small">登录</a-button>
-        </router-link>
+      <div class="left">
+        <div class="logo">Vibe Coding</div>
+      </div>
+      <div class="center">
+        <a-link class="nav-item" @click="$router.push('/explore')">探索</a-link>
+        <a-link class="nav-item" @click="$router.push('/catalog')">目录</a-link>
+        <a-input-search
+          v-model="keyword"
+          allow-clear
+          placeholder="搜索代码风格、规范等..."
+          :style="{ width: '720px', maxWidth: '65vw' }"
+          class="rounded-search"
+          @search="onSearch"
+        />
+        <a-link class="nav-item" @click="$router.push('/login')">登录</a-link>
+        <a-link class="nav-item" @click="$router.push('/register')"
+          >注册</a-link
+        >
+      </div>
+      <div class="right">
+        <a-button type="primary" size="small" @click="$router.push('/submit')"
+          >提交灵感</a-button
+        >
       </div>
     </div>
 
@@ -93,6 +111,14 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
+  const keyword = ref('');
+  const onSearch = () => {
+    const q = (keyword.value || '').trim();
+    router.push({ name: 'search', query: { q } });
+  };
 
   const cards = ref(
     Array.from({ length: 12 }).map((_, i) => ({
@@ -164,9 +190,9 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     height: 66px;
     padding: 0 20px;
     background-color: rgba(255, 255, 255, 0.4);
@@ -174,13 +200,101 @@
     backdrop-filter: saturate(180%) blur(10px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
   .logo {
     font-weight: 600;
   }
-  .actions {
+  .center {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  .right {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
     align-items: center;
   }
+
+  /* 四个导航项：朴素样式、黑色文字、稍大字号、无夸张悬停 */
+  .nav-item,
+  .nav-item:visited {
+    color: #000000b6 !important;
+    font-size: 16px;
+    font-weight: 320;
+    padding: 4px 8px; /* 为阴影和浮起预留可点击区域 */
+    border-radius: 8px; /* 柔和圆角但无背景 */
+    transition: color 0.25s ease, transform 0.48s ease, box-shadow 0.2s ease;
+  }
+  .nav-item:hover {
+    color: #111 !important;
+    opacity: 1;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.45);
+  }
+
+  /* 顶部搜索框通用圆角（无需额外类名） */
+  /* .topbar :deep(.arco-input-search .arco-input-group) {
+    border-radius: 4px;
+    overflow: hidden;
+  } */
+
+  /* 直接作用于 Arco 的搜索外层 wrapper，确保覆盖默认半径 */
+  .topbar :deep(.arco-input-wrapper.arco-input-search) {
+    --border-radius-small: 24px; /* 覆盖内部使用的变量 */
+    border-radius: 8px !important;
+    overflow: hidden;
+    background: linear-gradient(
+      135deg,
+      #8fa8d9 0%,
+      #9a8fd8 25%,
+      #88c9c2 50%,
+      #6db5e6 75%,
+      #8cb4e8 100%
+    );
+    background-size: 400% 400% !important;
+    animation: gradientShift 8s ease infinite;
+    /* backdrop-filter: blur(100px); */
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 去掉输入框/前后缀的竖线与边框以及光标 */
+  .topbar :deep(.arco-input-wrapper.arco-input-search .arco-input) {
+    border: none !important;
+    box-shadow: none !important;
+    caret-color: transparent; /* 隐藏黑色输入光标 */
+  }
+  .topbar :deep(.arco-input-prefix),
+  .topbar :deep(.arco-input-suffix),
+  .topbar :deep(.arco-input-group-addafter),
+  .topbar :deep(.arco-input-group-addbefore) {
+    border: none !important;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 100%;
+    }
+  }
+
+  /* 搜索框圆角 */
+  /* :deep(.rounded-search .arco-input-group) {
+    border-radius: 24px;
+    overflow: hidden;
+  } */
 
   /* Hero 区域 - 包含所有内容 */
   .hero {
