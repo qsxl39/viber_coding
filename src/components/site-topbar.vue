@@ -1,11 +1,11 @@
 <template>
-  <div class="topbar">
+  <div ref="topbarRef" class="topbar">
     <div class="left">
       <div class="logo">Vibe Coding</div>
     </div>
     <div class="center">
-      <a-link class="nav-item" @click="$router.push('/explore')">探索</a-link>
-      <a-link class="nav-item" @click="$router.push('/catalog')">目录</a-link>
+      <a-link class="nav-item" @click.prevent="navigateWithInk('/explore', $event)">探索</a-link>
+      <a-link class="nav-item" @click.prevent="navigateWithInk('/catalog', $event)">目录</a-link>
       <a-input-search
         v-model="keyword"
         allow-clear
@@ -24,7 +24,15 @@
         >上传模板</a-button
       >
     </div>
+    <!-- 顶栏内部液体线条 -->
+    <div
+      v-show="ink.visible"
+      class="ink-line"
+      :style="ink.style as any"
+    ></div>
   </div>
+  <!-- 顶栏液体扩散层 -->
+  <div v-if="inkActive" class="ink-splash play"></div>
   <a-modal
     :visible="authVisible"
     :footer="false"
@@ -102,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
 
   const router = useRouter();
@@ -119,6 +127,47 @@
   const openAuth = (mode: AuthMode) => {
     authMode.value = mode;
     authVisible.value = true;
+  };
+
+  // 顶栏液体扩散动画 + 路由跳转
+  const topbarRef = ref<HTMLElement | null>(null);
+  const ink = reactive({ visible: false, style: { left: '0px', top: '0px', width: '0px', height: '0px', borderRadius: '12px', transition: 'all 360ms cubic-bezier(0.22, 0.61, 0.36, 1)', background: 'rgba(255,255,255,0.95)' } });
+
+  const triggerInkFrom = (targetEl: HTMLElement) => {
+    const bar = topbarRef.value;
+    if (!bar) return;
+    const barRect = bar.getBoundingClientRect();
+    const linkRect = targetEl.getBoundingClientRect();
+
+    // 起始：从被点击的链接位置和尺寸开始（先去掉过渡，确保每次都能重新起跳）
+    ink.visible = true;
+    ink.style.transition = 'none';
+    ink.style.left = `${linkRect.left - barRect.left}px`;
+    ink.style.top = `${linkRect.top - barRect.top}px`;
+    ink.style.width = `${linkRect.width}px`;
+    ink.style.height = `${Math.max(28, linkRect.height)}px`;
+    ink.style.borderRadius = '14px';
+
+    // 强制回流，应用起始状态
+    (bar as HTMLElement).getBoundingClientRect();
+
+    // 恢复过渡并下滑到顶栏底部，同时横向铺满
+    ink.style.transition = 'left 360ms cubic-bezier(0.22,0.61,0.36,1), top 320ms cubic-bezier(0.22,0.61,0.36,1), width 420ms cubic-bezier(0.22,0.61,0.36,1), height 280ms cubic-bezier(0.22,0.61,0.36,1), border-radius 300ms ease';
+    requestAnimationFrame(() => {
+      const lineH = 14; // 稍厚一点，更有“液体”质感
+      ink.style.left = '0px';
+      ink.style.top = `${barRect.height - lineH}px`;
+      ink.style.width = `${barRect.width}px`;
+      ink.style.height = `${lineH}px`;
+      ink.style.borderRadius = '18px';
+    });
+  };
+
+  const navigateWithInk = (to: string, evt: Event) => {
+    const current = evt.currentTarget as HTMLElement;
+    triggerInkFrom(current);
+    // 稍延时后跳转，液体仍然保持不消失
+    setTimeout(() => router.push(to), 120);
   };
 </script>
 
@@ -156,6 +205,38 @@
     justify-content: flex-end;
     gap: 8px;
     align-items: center;
+  }
+
+  /* 新：顶栏内部“液体线条”，只在顶栏内移动，不外溢，也不消失 */
+  .ink-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 12px;
+    /* 多重径向渐变制造“流动/团块”质感 */
+    background:
+      radial-gradient(16px 12px at 8% 60%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 65%),
+      radial-gradient(22px 14px at 22% 40%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 68%),
+      radial-gradient(18px 12px at 38% 65%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 70%),
+      radial-gradient(26px 14px at 56% 45%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 70%),
+      radial-gradient(18px 12px at 72% 60%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 68%),
+      radial-gradient(22px 14px at 88% 50%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.0) 70%),
+      linear-gradient(to right, rgba(255,255,255,.75), rgba(255,255,255,.75));
+    background-size: 140px 100%, 160px 100%, 180px 100%, 200px 100%, 160px 100%, 180px 100%, 100% 100%;
+    background-repeat: repeat-x;
+    animation: inkWave 3.2s linear infinite;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08), inset 0 0 14px rgba(255,255,255,0.65);
+    filter: saturate(110%) blur(0.2px);
+    border-radius: 18px;
+    pointer-events: none;
+    z-index: 0; /* 保持在内容下方 */
+  }
+  .left, .center, .right { position: relative; z-index: 1; }
+
+  /* 让径向团块在水平方向缓慢流动，产生“流动感” */
+  @keyframes inkWave {
+    0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: 140px 0, 160px 0, 180px 0, 200px 0, 160px 0, 180px 0, 0 0; }
   }
 
   .nav-item,
